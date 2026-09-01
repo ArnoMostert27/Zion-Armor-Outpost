@@ -193,7 +193,31 @@ export default function Requisition() {
               >
                 {step === 0 && (
                   <div className="stack">
-                    <h3>Where does it go?</h3>
+                    <div className="report__head">
+                      <h3>Where does it go?</h3>
+                      <button
+                        type="button"
+                        className="btn btn--ghost btn--sm"
+                        onClick={() =>
+                          setDispatch({
+                            ...EMPTY_DISPATCH,
+                            fullName: user.name,
+                            line1: '14 Outpost Road',
+                            line2: '',
+                            city: 'Cape Town',
+                            province: 'Western Cape',
+                            postalCode: '8001',
+                            phone: '021 000 0000',
+                          })
+                        }
+                      >
+                        Fill with demo details
+                      </button>
+                    </div>
+                    <p className="text-dim" style={{ fontSize: 'var(--step--2)' }}>
+                      Nothing is shipped and this address is not stored anywhere outside the
+                      demo order. Use the button rather than your real address.
+                    </p>
                     <div className="form-grid">
                       {field('fullName', 'Full name', { required: true, full: true })}
                       {field('line1', 'Street address', { required: true, full: true })}
@@ -208,26 +232,28 @@ export default function Requisition() {
 
                 {step === 1 && (
                   <div className="stack">
-                    <h3>How are you settling it?</h3>
-                    <div style={{ display: 'grid', gap: 'var(--sp-3)' }}>
-                      {[
-                        { key: 'demo', label: 'Outpost credit (demo)', note: 'Marks the run as paid instantly. Use this for the demo.' },
-                        { key: 'card', label: 'Card', note: 'Wire a real gateway here — the order is created unpaid.' },
-                        { key: 'eft', label: 'EFT', note: 'Bank transfer. The Keeper marks it paid on arrival.' },
-                      ].map((option) => (
-                        <button
-                          key={option.key}
-                          className={`forge-slot ${paymentMethod === option.key ? 'is-filled' : ''}`}
-                          style={{ textAlign: 'left' }}
-                          onClick={() => setPaymentMethod(option.key)}
-                        >
-                          <span className="forge-slot__name">{option.label}</span>
-                          <span className="text-dim" style={{ fontSize: 'var(--step--2)' }}>
-                            {option.note}
-                          </span>
-                        </button>
-                      ))}
+                    <h3>Payment</h3>
+
+                    <div className="alert alert--ok">
+                      <strong>This is a demo store.</strong> There is no payment processor
+                      connected, no card details are collected, and nothing is ever shipped.
+                      Place as many orders as you like — it is here so you can see the whole
+                      flow work.
                     </div>
+
+                    <div className="forge-slot is-filled" style={{ textAlign: 'left' }}>
+                      <span className="forge-slot__name">Outpost Credit</span>
+                      <span className="text-dim" style={{ fontSize: 'var(--step--2)' }}>
+                        Settles the requisition instantly and logs it against your rank. Your
+                        XP, badges and supply-run history are all real — only the money is not.
+                      </span>
+                    </div>
+
+                    <p className="text-dim" style={{ fontSize: 'var(--step--2)' }}>
+                      A live build would swap this step for a payment gateway. The order model
+                      already records a payment method and paid status, so that change is
+                      confined to this screen and one controller.
+                    </p>
                   </div>
                 )}
 

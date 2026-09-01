@@ -11,7 +11,7 @@ import products from './data/products.js';
 import plans from './data/plans.js';
 
 dotenv.config();
-connectDB();
+await connectDB();
 
 const wipe = async () => {
   await Promise.all([

@@ -34,7 +34,9 @@ const orderSchema = new mongoose.Schema(
       phone: { type: String, default: '' },
     },
 
-    paymentMethod: { type: String, enum: ['card', 'eft', 'demo'], default: 'demo' },
+    // This is a portfolio demo - no payment processor is integrated, and the
+    // only method a customer can choose is the clearly-labelled demo one.
+    paymentMethod: { type: String, enum: ['demo'], default: 'demo' },
     paymentResult: {
       id: String,
       status: String,

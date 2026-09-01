@@ -5,6 +5,19 @@ import User from '../models/User.js';
 import { xpFromOrderTotal, XP_RULES, rankForXp } from '../utils/ranks.js';
 import { calculateTotals } from '../utils/pricing.js';
 
+/**
+ * Demo mode. This app lives in a portfolio: strangers place test orders to see
+ * the flow, and nothing is ever really shipped. With stock decrementing
+ * normally, a few months of visitors would empty every rack and the store would
+ * look broken to the next person who opened it.
+ *
+ * So in demo mode stock is still *validated* - you cannot order more than the
+ * shelf holds, and the check is right there in priceOrder() for anyone reading
+ * the code - but it is never decremented. Set DEMO_MODE=false for real
+ * inventory behaviour.
+ */
+export const DEMO_MODE = process.env.DEMO_MODE !== 'false';
+
 const makeReference = () =>
   `ZAO-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
 
@@ -106,10 +119,12 @@ export const createOrder = asyncHandler(async (req, res) => {
     paidAt: paymentMethod === 'demo' ? new Date() : undefined,
   });
 
-  // Decrement stock
-  await Promise.all(
-    priced.items.map((i) => Product.updateOne({ _id: i.product }, { $inc: { stock: -i.qty } }))
-  );
+  // Decrement stock, unless this deployment is a demo (see DEMO_MODE above).
+  if (!DEMO_MODE) {
+    await Promise.all(
+      priced.items.map((i) => Product.updateOne({ _id: i.product }, { $inc: { stock: -i.qty } }))
+    );
+  }
 
   // Award XP and badges
   const user = await User.findById(req.user._id);

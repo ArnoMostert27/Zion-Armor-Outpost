@@ -27,6 +27,17 @@ const users = [
     xp: 180,
     avatarSigil: 'helmet',
   },
+  {
+    // The shared account behind the "Try it as a demo visitor" button on the
+    // sign-in screen. Starts at Shield Bearer so a visitor immediately sees the
+    // rank discount and badge system doing something.
+    name: 'Demo Visitor',
+    email: 'demo@zionarmor.dev',
+    password: 'demo1234',
+    role: 'customer',
+    xp: 340,
+    avatarSigil: 'shield',
+  },
 ];
 
 export default users;

@@ -9,10 +9,12 @@ const generateToken = (res, userId) => {
     expiresIn: process.env.JWT_EXPIRES_IN || '30d',
   });
 
+  // Client and API share an origin on Vercel, so 'lax' is correct and safer
+  // than 'none' - it keeps the cookie out of genuine cross-site requests.
   res.cookie('jwt', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    sameSite: 'lax',
     maxAge: 30 * 24 * 60 * 60 * 1000,
   });
 

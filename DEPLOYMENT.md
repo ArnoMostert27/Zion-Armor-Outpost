@@ -1,183 +1,177 @@
 # Deploying Zion Armor Outpost
 
-Three services: a MongoDB Atlas cluster, the Express API on Render, and the
-React client on Vercel. All three have free tiers that comfortably run this app.
+Two services: a MongoDB Atlas cluster for the data, and Vercel for everything
+else. The React client and the Express API deploy together from one repository,
+so they share an origin and there is no CORS to configure.
 
-Total time if nothing goes wrong: about 30 minutes.
+Both are free.
 
 ---
 
-## Before you start
+## How it fits together on Vercel
 
-Push the code to GitHub first — Render and Vercel both deploy from the repo.
-
-```bash
-git add .
-git commit -m "Add deployment configuration"
-git push
+```
+one Vercel project
+├── client/dist          static React build, served from the CDN
+└── api/index.js         serverless function
+        └── imports server/app.js — the same Express app you run locally
 ```
 
-Check that `.env` is **not** in the push. `git status` should not list it, and
-`.gitignore` already excludes it.
+`vercel.json` sends `/api/*` to the function and everything else to the React
+app. Because both live on the same domain, the client calls `/api/products` with
+no base URL at all.
+
+**What changed to make this work**
+
+- `server/app.js` builds and exports the Express app. It does not connect to the
+  database and does not call `listen()`.
+- `server/server.js` is the local entry point: connect, then listen.
+- `api/index.js` is the Vercel entry point: connect, then hand the request to
+  the same app.
+- `server/config/db.js` caches the connection on `globalThis`. Serverless reuses
+  warm processes, so without caching every request would open a new connection
+  pool and exhaust Atlas within minutes.
+
+Local development is unchanged: `npm run dev` still runs a normal Node server.
 
 ---
 
 ## 1. MongoDB Atlas
 
-1. Sign up at [mongodb.com/atlas](https://www.mongodb.com/atlas) and create a
-   free **M0** cluster. Pick the region closest to you.
-2. **Database Access** → Add New Database User. Username and password, built-in
-   role **Read and write to any database**. Save the password somewhere — you
-   only see it once, and it goes in your connection string.
-3. **Network Access** → Add IP Address → **Allow access from anywhere**
-   (`0.0.0.0/0`). Render's outbound IPs are not fixed on the free tier, so
-   restricting by IP will break the connection.
-4. **Database** → Connect → Drivers. Copy the connection string. It looks like:
+You have already done most of this.
+
+1. Free **M0** cluster created.
+2. **Database Access** — a user with read/write access.
+3. **Network Access** → **Allow access from anywhere** (`0.0.0.0/0`).
+   Vercel's functions have no fixed outbound IPs, so anything narrower will fail
+   — and it fails as a silent timeout, not a clear error.
+4. Your connection string, with the database name and query params added:
 
    ```
-   mongodb+srv://<user>:<password>@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority
+   mongodb+srv://USER:PASSWORD@cluster0.xxxxx.mongodb.net/zion-armor-outpost?retryWrites=true&w=majority
    ```
 
-5. Edit it: replace `<password>` with the real password, and insert the database
-   name before the `?`:
+### Seed it
 
-   ```
-   mongodb+srv://arno:realpassword@cluster0.xxxxx.mongodb.net/zion-armor-outpost?retryWrites=true&w=majority
-   ```
-
-   If your password contains `@`, `:`, `/` or `#` you must URL-encode it, or the
-   connection string will not parse.
-
-### Seed the live database
-
-Point your local `.env` at Atlas temporarily and run the seeder:
+Point `server/.env` at Atlas temporarily and run:
 
 ```bash
-# server/.env — swap MONGO_URI for the Atlas string, then:
 npm run seed
 ```
 
-Change it back to your local URI afterwards so local development keeps using the
-local database.
+Expect `[seeder] Outpost stocked.` and a host ending in `mongodb.net`. Then put
+your local URI back.
 
 ---
 
-## 2. The API on Render
+## 2. Push
 
-The repo includes `render.yaml`, so this is mostly automatic.
+```bash
+git add .
+git commit -m "Deploy to Vercel as a single project"
+git push
+```
 
-1. Sign up at [render.com](https://render.com) with your GitHub account.
-2. **New** → **Blueprint** → select the `Zion-Armor-Outpost` repository.
-3. Render reads `render.yaml` and proposes a web service. Approve it.
-4. Two variables are marked `sync: false`, meaning you fill them in yourself:
-
-   | Variable | Value |
-   |---|---|
-   | `MONGO_URI` | your Atlas connection string from step 1 |
-   | `CLIENT_URL` | leave blank for now — you get this in step 3 |
-
-   `JWT_SECRET` is generated for you. `NODE_ENV` is already `production`.
-
-5. Deploy. When it finishes, visit `https://your-api.onrender.com/api/health`.
-   You should see `{"status":"standing", ...}`.
-
-**Note on the free tier:** Render spins the service down after 15 minutes idle.
-The first request after that takes 30–50 seconds to wake it. That is normal, but
-if you are demonstrating live, load the health endpoint a minute beforehand so
-the marker does not sit watching a spinner.
+Check `.env` is not in the push. Your `.gitignore` should include `*.env` so a
+file like `atlascredentials.env` cannot slip through — plain `.env` only matches
+a file with exactly that name.
 
 ---
 
-## 3. The client on Vercel
+## 3. Vercel
 
 1. Sign up at [vercel.com](https://vercel.com) with GitHub.
-2. **Add New** → **Project** → import the repository.
-3. Set **Root Directory** to `client`. Vercel detects Vite and reads
-   `client/vercel.json` for the rest.
-4. Add one environment variable:
+2. **Add New** → **Project** → import `Zion-Armor-Outpost`.
+3. **Root Directory: leave it as the repository root.** Not `client`. The root
+   `vercel.json` builds the client and picks up the API function; pointing at
+   `client` would deploy the front end with no API behind it.
+4. Leave the build settings alone — `vercel.json` supplies them.
+5. Add environment variables:
 
-   | Variable | Value |
+   | Name | Value |
    |---|---|
-   | `VITE_API_URL` | `https://your-api.onrender.com` — no trailing slash |
+   | `MONGO_URI` | your Atlas connection string |
+   | `JWT_SECRET` | a long random string — generate one, do not reuse the example |
+   | `NODE_ENV` | `production` |
+   | `DEMO_MODE` | `true` |
 
-5. Deploy. You get a URL like `https://zion-armor-outpost.vercel.app`.
+   No `VITE_API_URL` and no `CLIENT_URL`. Same origin means neither is needed.
+
+6. **Deploy.**
+
+### Generating a JWT secret
+
+```bash
+node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+```
 
 ---
 
-## 4. Close the loop
+## 4. Check it
 
-Go back to Render → your service → **Environment**, and set:
+- `https://your-app.vercel.app/api/health` → `{"status":"standing","runtime":"vercel-serverless"}`
+- The home page loads with the 3D hero
+- **Try it as a demo visitor** on the sign-in screen signs you straight in
+- Add to the satchel, then place a demo order end to end
+- Hard-refresh on `/racks` — a deep link must not 404
 
-```
-CLIENT_URL = https://zion-armor-outpost.vercel.app
-```
-
-No trailing slash. This is what the CORS check compares against, so a mismatch
-here is the single most common reason a deployed build "can log in locally but
-not in production".
-
-If you also want Vercel preview deploys to work, `CLIENT_URL` accepts a
-comma-separated list:
-
-```
-CLIENT_URL = https://zion-armor-outpost.vercel.app,https://zion-armor-outpost-git-main-arno.vercel.app
-```
-
-Save. Render redeploys automatically. Test the live site.
+If the health check returns `"runtime":"node"` something is serving the old
+build. If it 404s, the root directory is set to `client` instead of the root.
 
 ---
 
-## Alternative: one service instead of three
+## Demo mode
 
-`server.js` already serves `client/dist` when `NODE_ENV=production`, so you can
-run the whole app from Render alone.
+`DEMO_MODE=true` means orders are placed, XP is awarded and badges unlock
+exactly as normal — but stock is never decremented.
 
-- Root directory: leave blank (the repo root)
-- Build command: `npm run install:all && npm run build`
-- Start command: `npm start`
-- Environment: `NODE_ENV`, `MONGO_URI`, `JWT_SECRET`. No `CLIENT_URL` or
-  `VITE_API_URL` needed — same origin means no CORS at all.
+Without it, every visitor who tests checkout permanently reduces your inventory,
+and within a few months a portfolio site reads "Rack Empty" across half the
+store. Stock is still validated on every order, so the logic remains visible in
+the code; it simply is not written back.
 
-Simpler to configure and fewer things to mismatch. The trade-off is that the
-front end loses Vercel's CDN, so first paint is slower and every asset request
-also has to wake the sleeping free-tier service.
-
----
-
-## Before you hand it in
-
-- [ ] Change the seeded passwords, or delete the demo users entirely
-- [ ] Confirm `JWT_SECRET` in production is not the value from `.env.example`
-- [ ] Sign in on the live site and place a test order end to end
-- [ ] Open the live site on a phone — check the hero, the motion comic and the forge
-- [ ] Hard-refresh on a deep link like `/racks` to confirm SPA routing works
-- [ ] Check the browser console on the live site for errors
-- [ ] Run `npm test` one last time
+Set `DEMO_MODE=false` for real inventory behaviour.
 
 ---
 
 ## Troubleshooting
 
-**"Not authorised" immediately after signing in on the live site**
-`CLIENT_URL` on Render does not exactly match the Vercel URL. Check for a
-trailing slash, `http` vs `https`, or a `www.` prefix.
+**`/api/*` returns 404**
+Root directory is set to `client`. It must be the repository root.
 
-**The client loads but every request 404s**
-`VITE_API_URL` is missing or wrong on Vercel. Note that Vite bakes environment
-variables in at build time — after changing it you must **redeploy**, not just
-restart.
+**"The outpost cannot reach its records"**
+`MONGO_URI` is wrong or Atlas Network Access is not `0.0.0.0/0`. Check the
+function logs under Vercel → your project → **Logs**.
 
 **`MongoServerError: bad auth`**
-The password in the connection string is wrong, or contains a character that
-needs URL-encoding.
+Wrong password, or it contains a character needing URL encoding (`@ : / # %`).
 
-**The API times out connecting to Atlas**
-Network Access is not set to `0.0.0.0/0`.
+**Signing in works, then requests 401**
+`JWT_SECRET` is missing in Vercel. It must be set, and changing it invalidates
+every existing token.
+
+**First request is slow**
+Serverless cold start, roughly a second. Subsequent requests are warm.
 
 **Deep links 404 on refresh**
-The SPA rewrite is missing. `vercel.json` and `netlify.toml` both handle this —
-make sure the root directory is set to `client` so the platform finds them.
+The SPA rewrite is missing — confirm `vercel.json` is at the repository root.
 
-**The 3D hero does not appear on a phone**
-Expected on some devices. The hero checks for WebGL and falls back to a static
-icon grid, and it also respects the reduced-motion setting.
+---
+
+## Before sharing the link
+
+- [ ] Rotate the Atlas password if it has ever been pasted anywhere
+- [ ] `JWT_SECRET` is a real random value, not from `.env.example`
+- [ ] Place a test order on the live site
+- [ ] Open it on a phone
+- [ ] Check the browser console for errors
+- [ ] `npm test` passes
+
+---
+
+## Other hosts
+
+`render.yaml`, `client/vercel.json` and `client/netlify.toml` are left over from
+the earlier three-service setup and are not used by this deployment. They do no
+harm — Vercel only reads the `vercel.json` at the repository root — but they can
+be deleted if you want the repo tidy.

@@ -14,16 +14,29 @@ export default function Gate() {
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
 
-  const submit = async (event) => {
-    event.preventDefault();
+  const signIn = async (email, password) => {
     setBusy(true);
     setError(null);
     try {
-      const user =
-        mode === 'login'
-          ? await login(form.email, form.password)
-          : await register(form.name, form.email, form.password);
+      const user = await login(email, password);
       toast(`Welcome back, ${user.name}. Rank: ${user.rank?.name}.`, { mark: 'HAIL!' });
+      navigate('/rank');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const submit = async (event) => {
+    event.preventDefault();
+    if (mode === 'login') return signIn(form.email, form.password);
+
+    setBusy(true);
+    setError(null);
+    try {
+      const user = await register(form.name, form.email, form.password);
+      toast(`Welcome to the outpost, ${user.name}.`, { mark: 'HAIL!' });
       navigate('/rank');
     } catch (err) {
       setError(err.message);
@@ -39,6 +52,24 @@ export default function Gate() {
         <h1 className="gate__title">{mode === 'login' ? 'Sign in' : 'Enlist'}</h1>
 
         {error && <div className="alert">{error}</div>}
+
+        {/* Portfolio visitors should not have to invent an account to see the
+            store work. One click puts them inside the full flow. */}
+        <button
+          type="button"
+          className="btn btn--ember btn--block"
+          disabled={busy}
+          onClick={() => signIn('demo@zionarmor.dev', 'demo1234')}
+        >
+          Try it as a demo visitor
+        </button>
+
+        <p className="gate__hint" style={{ textAlign: 'center' }}>
+          No sign-up needed. Browse, add to your satchel, build an armor set and place a
+          demo order. Nothing is charged and nothing is shipped.
+        </p>
+
+        <div className="ink-rule" />
 
         {mode === 'register' && (
           <label className="field">
@@ -96,9 +127,9 @@ export default function Gate() {
         </p>
 
         <p className="gate__hint">
-          Demo Keeper: <code>keeper@zionarmor.dev</code> / <code>keeper123</code>
+          Want to see the admin side? Sign in as the Outpost Keeper:
           <br />
-          Demo recruit: <code>arno@zionarmor.dev</code> / <code>recruit123</code>
+          <code>keeper@zionarmor.dev</code> / <code>keeper123</code>
         </p>
 
         <Link to="/" className="gate__hint" style={{ textAlign: 'center' }}>
