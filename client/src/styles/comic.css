@@ -1,0 +1,329 @@
+/* ==========================================================================
+   Comic language - panels, halftone, ink, bursts, holographic foil
+   Everything here is decoration that other components opt into.
+   ========================================================================== */
+
+/* --- panel --------------------------------------------------------------- */
+.panel {
+  position: relative;
+  background: var(--bg-panel);
+  border: var(--border-ink);
+  box-shadow: var(--shadow-panel);
+  padding: var(--sp-5);
+}
+
+.panel--tilt-l {
+  transform: rotate(-1.1deg);
+}
+.panel--tilt-r {
+  transform: rotate(1.1deg);
+}
+
+.panel--gutter {
+  outline: 6px solid var(--bg);
+  outline-offset: 0;
+}
+
+/* Torn bottom edge, drawn with a clip-path so it needs no image. */
+.panel--torn {
+  clip-path: polygon(
+    0% 0%, 100% 0%, 100% 94%,
+    96% 100%, 90% 95%, 84% 100%, 78% 96%, 71% 100%, 64% 95%,
+    57% 100%, 50% 96%, 43% 100%, 36% 95%, 29% 100%, 22% 96%,
+    15% 100%, 8% 95%, 0% 100%
+  );
+}
+
+/* --- halftone ------------------------------------------------------------ */
+.halftone {
+  position: relative;
+}
+
+.halftone::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.35) 1.2px, transparent 1.2px);
+  background-size: 5px 5px;
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+}
+
+.screentone {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--line) 0 1px,
+    transparent 1px 6px
+  );
+}
+
+/* --- speed lines --------------------------------------------------------- */
+.speedlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0.35;
+}
+
+.speedlines::before,
+.speedlines::after {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    var(--accent) 0deg 0.35deg,
+    transparent 0.35deg 3deg
+  );
+  animation: speed-spin 40s linear infinite;
+  mask-image: radial-gradient(circle at center, transparent 32%, black 78%);
+  -webkit-mask-image: radial-gradient(circle at center, transparent 32%, black 78%);
+}
+
+.speedlines::after {
+  animation-direction: reverse;
+  animation-duration: 65s;
+  opacity: 0.5;
+}
+
+@keyframes speed-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- onomatopoeia burst -------------------------------------------------- */
+.burst {
+  font-family: var(--font-comic);
+  font-size: var(--step-4);
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  -webkit-text-stroke: 3px var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 5px 5px 0 var(--ink);
+  transform: rotate(-6deg);
+  display: inline-block;
+  line-height: 1;
+}
+
+.burst--ember {
+  color: var(--accent-2);
+}
+.burst--cyan {
+  color: var(--accent-3);
+}
+
+.burst-pop {
+  animation: burst-pop 520ms var(--ease-snap) both;
+}
+
+@keyframes burst-pop {
+  0% {
+    transform: rotate(-16deg) scale(0.2);
+    opacity: 0;
+  }
+  60% {
+    transform: rotate(-4deg) scale(1.18);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(-6deg) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Star-shaped burst backing */
+.burst-star {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  background: var(--accent);
+  clip-path: polygon(
+    50% 0%, 61% 21%, 84% 15%, 79% 38%, 100% 50%, 79% 62%, 84% 85%,
+    61% 79%, 50% 100%, 39% 79%, 16% 85%, 21% 62%, 0% 50%, 21% 38%, 16% 15%, 39% 21%
+  );
+}
+
+/* --- ink underline ------------------------------------------------------- */
+.ink-underline {
+  position: relative;
+  display: inline-block;
+}
+
+.ink-underline::after {
+  content: '';
+  position: absolute;
+  left: -2%;
+  bottom: -0.12em;
+  width: 104%;
+  height: 0.22em;
+  background: var(--accent);
+  clip-path: polygon(0 55%, 8% 25%, 22% 62%, 38% 20%, 55% 60%, 70% 22%, 86% 58%, 100% 30%, 100% 100%, 0 100%);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform var(--dur) var(--ease-out);
+}
+
+.ink-underline:hover::after,
+.ink-underline.is-active::after {
+  transform: scaleX(1);
+}
+
+/* --- holographic foil ---------------------------------------------------- */
+.holo {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.holo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.55) 42%,
+    rgba(53, 231, 220, 0.35) 50%,
+    rgba(255, 90, 43, 0.3) 58%,
+    transparent 80%
+  );
+  transform: translateX(-120%);
+  transition: transform 900ms var(--ease-out);
+  mix-blend-mode: screen;
+}
+
+.holo:hover::before {
+  transform: translateX(120%);
+}
+
+.holo--rainbow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.28;
+  mix-blend-mode: color-dodge;
+  background: conic-gradient(
+    from var(--holo-angle, 0deg),
+    #ff5a2b, #e3b93b, #35e7dc, #7b6bff, #ff5a2b
+  );
+  transition: opacity var(--dur) var(--ease-out);
+}
+
+.holo--rainbow:hover::after {
+  opacity: 0.45;
+}
+
+/* --- stamps -------------------------------------------------------------- */
+.stamp {
+  font-family: var(--font-comic);
+  font-size: var(--step-1);
+  letter-spacing: 0.06em;
+  color: var(--blood);
+  border: 4px solid var(--blood);
+  padding: 0.1em 0.5em;
+  transform: rotate(-11deg);
+  opacity: 0.92;
+  text-transform: uppercase;
+  background: rgba(163, 42, 42, 0.08);
+}
+
+.stamp--slam {
+  animation: stamp-slam 460ms var(--ease-snap) both;
+}
+
+@keyframes stamp-slam {
+  0% {
+    transform: rotate(-24deg) scale(3.2);
+    opacity: 0;
+  }
+  55% {
+    transform: rotate(-9deg) scale(0.94);
+    opacity: 1;
+  }
+  70% {
+    transform: rotate(-13deg) scale(1.06);
+  }
+  100% {
+    transform: rotate(-11deg) scale(1);
+    opacity: 0.92;
+  }
+}
+
+/* --- speech bubble ------------------------------------------------------- */
+.bubble {
+  position: relative;
+  background: var(--parchment);
+  color: var(--ink);
+  border: 3px solid var(--ink);
+  border-radius: 22px;
+  padding: var(--sp-4) var(--sp-5);
+  font-weight: 600;
+  max-width: 34ch;
+}
+
+.bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -22px;
+  left: 34px;
+  width: 0;
+  height: 0;
+  border: 12px solid transparent;
+  border-top-color: var(--ink);
+  border-bottom: 0;
+  transform: skewX(-18deg);
+}
+
+.bubble--think {
+  border-radius: 40px;
+}
+
+/* --- ink splatter divider ------------------------------------------------ */
+.ink-rule {
+  height: 6px;
+  background: var(--text);
+  clip-path: polygon(
+    0 40%, 4% 0, 9% 60%, 14% 10%, 20% 70%, 26% 20%, 33% 80%, 41% 25%,
+    50% 70%, 58% 15%, 66% 75%, 74% 20%, 82% 65%, 90% 12%, 96% 55%, 100% 30%,
+    100% 100%, 0 100%
+  );
+  opacity: 0.75;
+}
+
+/* --- glow pulse ---------------------------------------------------------- */
+@keyframes glow-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(227, 185, 59, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 34px 6px rgba(227, 185, 59, 0.25);
+  }
+}
+
+.pulse {
+  animation: glow-pulse 2.8s var(--ease-in-out) infinite;
+}
+
+/* --- flicker ------------------------------------------------------------- */
+@keyframes torch-flicker {
+  0%, 100% { opacity: 1; }
+  8% { opacity: 0.82; }
+  12% { opacity: 1; }
+  40% { opacity: 0.9; }
+  44% { opacity: 1; }
+  70% { opacity: 0.76; }
+  74% { opacity: 1; }
+}
+
+.flicker {
+  animation: torch-flicker 5s linear infinite;
+}

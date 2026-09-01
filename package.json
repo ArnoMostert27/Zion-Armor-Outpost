@@ -1,0 +1,27 @@
+{
+  "name": "zion-armor-outpost",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Zion Armor Outpost - a comic Bible bookstore built on the MERN stack",
+  "type": "module",
+  "scripts": {
+    "install:all": "npm install && npm --prefix server install && npm --prefix client install",
+    "covers": "node scripts/generate-covers.mjs",
+    "seed": "npm --prefix server run data:import",
+    "seed:wipe": "npm --prefix server run data:destroy",
+    "server": "npm --prefix server run dev",
+    "client": "npm --prefix client run dev",
+    "dev": "concurrently -n api,web -c yellow,cyan \"npm run server\" \"npm run client\"",
+    "build": "npm --prefix client run build",
+    "start": "npm --prefix server start",
+    "test": "npm --prefix server test && npm --prefix client test",
+    "test:server": "npm --prefix server test",
+    "test:client": "npm --prefix client test"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

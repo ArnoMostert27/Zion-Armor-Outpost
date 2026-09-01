@@ -1,0 +1,25 @@
+# Render blueprint for the Zion Armor Outpost API.
+# Push this file to the repo, then in Render choose New > Blueprint and point it
+# at the repository. Everything except the secrets is configured here.
+services:
+  - type: web
+    name: zion-armor-outpost-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_EXPIRES_IN
+        value: 30d
+      - key: JWT_SECRET
+        generateValue: true # Render creates a strong random secret
+      - key: MONGO_URI
+        sync: false # paste your Atlas connection string in the dashboard
+      - key: CLIENT_URL
+        sync: false # the deployed Vercel/Netlify URL, no trailing slash

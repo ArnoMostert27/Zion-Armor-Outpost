@@ -1,0 +1,538 @@
+/* ==========================================================================
+   Reusable components - buttons, fields, badges, cards
+   ========================================================================== */
+
+/* --- buttons ------------------------------------------------------------- */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  padding: 0.85em 1.6em;
+  font-family: var(--font-display);
+  font-size: var(--step--1);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  border: 2px solid var(--text);
+  background: transparent;
+  color: var(--text);
+  box-shadow: 4px 4px 0 var(--text);
+  transition: transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.btn:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 var(--text);
+}
+
+.btn:active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 var(--text);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: var(--accent);
+  color: var(--ink);
+  border-color: var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.btn--primary:hover:not(:disabled) {
+  box-shadow: 7px 7px 0 var(--ink);
+}
+.btn--primary:active:not(:disabled) {
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+.btn--ember {
+  background: var(--accent-2);
+  color: #fff;
+  border-color: var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.btn--ghost {
+  border-color: var(--line-strong);
+  box-shadow: none;
+}
+.btn--ghost:hover:not(:disabled) {
+  box-shadow: none;
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: none;
+}
+
+.btn--sm {
+  padding: 0.55em 1.1em;
+  font-size: var(--step--2);
+}
+
+.btn--lg {
+  padding: 1.05em 2.2em;
+  font-size: var(--step-0);
+}
+
+.btn--block {
+  width: 100%;
+}
+
+/* --- fields -------------------------------------------------------------- */
+.field {
+  display: block;
+}
+
+.field__label {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--step--2);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: var(--sp-2);
+}
+
+.field__input,
+.field__select,
+.field__textarea {
+  width: 100%;
+  padding: 0.75em 0.9em;
+  background: var(--bg-raised);
+  border: 2px solid var(--line-strong);
+  color: var(--text);
+  transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.field__input:focus,
+.field__select:focus,
+.field__textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(227, 185, 59, 0.18);
+}
+
+.field__textarea {
+  min-height: 8rem;
+  resize: vertical;
+}
+
+.field__error {
+  margin-top: var(--sp-2);
+  color: var(--danger);
+  font-size: var(--step--1);
+}
+
+/* --- alert --------------------------------------------------------------- */
+.alert {
+  border: 2px solid var(--danger);
+  background: rgba(255, 95, 86, 0.1);
+  padding: var(--sp-3) var(--sp-4);
+  color: var(--text);
+  font-size: var(--step--1);
+}
+
+.alert--ok {
+  border-color: var(--success);
+  background: rgba(74, 217, 145, 0.1);
+}
+
+/* --- chips / tags -------------------------------------------------------- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 0.32em 0.8em;
+  border: 1px solid var(--line-strong);
+  font-size: var(--step--2);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: var(--bg-raised);
+  transition: all var(--dur-fast) var(--ease-out);
+}
+
+.chip:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.chip--on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--ink);
+  font-weight: 700;
+}
+
+/* --- rank badge ---------------------------------------------------------- */
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 0.3em 0.75em;
+  font-family: var(--font-display);
+  font-size: var(--step--2);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 2px solid var(--accent);
+  color: var(--accent);
+  background: rgba(227, 185, 59, 0.08);
+}
+
+.rank-badge__dot {
+  width: 7px;
+  height: 7px;
+  background: var(--accent);
+  transform: rotate(45deg);
+}
+
+/* --- stars --------------------------------------------------------------- */
+.stars {
+  display: inline-flex;
+  gap: 2px;
+  color: var(--accent);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+}
+
+.stars__empty {
+  color: var(--text-faint);
+}
+
+/* --- product card -------------------------------------------------------- */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-panel);
+  border: var(--border-ink);
+  box-shadow: var(--shadow-panel);
+  transition: transform var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.card:hover {
+  box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.6), var(--shadow-glow);
+}
+
+.card__media {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  background: var(--bg-raised);
+  border-bottom: var(--border-ink);
+}
+
+.card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+.card:hover .card__media img {
+  transform: scale(1.06);
+}
+
+.card__flags {
+  position: absolute;
+  top: var(--sp-3);
+  left: var(--sp-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  z-index: 4;
+}
+
+.card__flag {
+  font-family: var(--font-comic);
+  font-size: var(--step--1);
+  letter-spacing: 0.06em;
+  padding: 0.1em 0.6em;
+  background: var(--accent);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  transform: rotate(-3deg);
+}
+
+.card__flag--ember {
+  background: var(--accent-2);
+  color: #fff;
+}
+
+.card__soldout {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(7, 9, 15, 0.62);
+  z-index: 5;
+}
+
+.card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+  flex: 1;
+}
+
+.card__title {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.card__blurb {
+  font-size: var(--step--1);
+  color: var(--text-dim);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-top: auto;
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--line);
+}
+
+.card__price {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  color: var(--accent);
+}
+
+.card__price s {
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  color: var(--text-faint);
+  margin-left: var(--sp-2);
+}
+
+/* --- grid ---------------------------------------------------------------- */
+.grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--sp-6);
+}
+
+/* --- section heading ----------------------------------------------------- */
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-5);
+  margin-bottom: var(--sp-6);
+  flex-wrap: wrap;
+}
+
+.section-head__eyebrow {
+  font-family: var(--font-comic);
+  font-size: var(--step-0);
+  letter-spacing: 0.14em;
+  color: var(--accent-2);
+  text-transform: uppercase;
+}
+
+.section-head__title {
+  font-size: var(--step-3);
+}
+
+.section-head__note {
+  max-width: 40ch;
+  color: var(--text-dim);
+  font-size: var(--step--1);
+}
+
+/* --- scroll (wishlist) toggle -------------------------------------------- */
+.scroll-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 0.45em 0.7em;
+  border: 2px solid var(--line-strong);
+  background: color-mix(in srgb, var(--bg-raised) 85%, transparent);
+  color: var(--text-dim);
+  font-family: var(--font-display);
+  font-size: var(--step--2);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+
+.scroll-toggle:hover:not(:disabled) {
+  color: var(--accent-2);
+  border-color: var(--accent-2);
+  transform: translateY(-2px);
+}
+
+.scroll-toggle.is-on {
+  color: var(--accent-2);
+  border-color: var(--accent-2);
+  background: rgba(255, 90, 43, 0.12);
+}
+
+.scroll-toggle.is-on svg {
+  fill: var(--accent-2);
+  animation: heart-thump 420ms var(--ease-snap);
+}
+
+@keyframes heart-thump {
+  0% { transform: scale(1); }
+  38% { transform: scale(1.45); }
+  100% { transform: scale(1); }
+}
+
+/* Positioned variant used on product cards */
+.card__scroll {
+  position: absolute;
+  top: var(--sp-3);
+  right: var(--sp-3);
+  z-index: 6;
+  padding: 0.45em;
+}
+
+/* --- badge unlock celebration -------------------------------------------- */
+.unlock {
+  position: fixed;
+  inset: 0;
+  z-index: 8800;
+  display: grid;
+  place-items: center;
+  background: rgba(7, 9, 15, 0.9);
+  backdrop-filter: blur(6px);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.unlock__inner {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: var(--sp-4);
+  justify-items: center;
+  text-align: center;
+  padding: var(--sp-6);
+}
+
+.unlock__star {
+  width: min(280px, 62vw);
+  animation: unlock-spin 9s linear infinite;
+}
+
+@keyframes unlock-spin {
+  to { transform: rotate(360deg); }
+}
+
+.unlock__mark {
+  width: 42%;
+  height: 42%;
+  color: var(--ink);
+  animation: unlock-spin 9s linear infinite reverse;
+}
+
+.unlock h2 {
+  font-size: var(--step-3);
+  color: var(--parchment);
+}
+
+/* --- modal --------------------------------------------------------------- */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 850;
+  display: grid;
+  place-items: center;
+  padding: var(--sp-5);
+  background: rgba(7, 9, 15, 0.82);
+  backdrop-filter: blur(4px);
+  overflow-y: auto;
+}
+
+.modal__card {
+  width: min(760px, 96vw);
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--bg-panel);
+  border: 3px solid var(--text);
+  box-shadow: var(--shadow-panel), var(--shadow-lift);
+  padding: var(--sp-6);
+  display: grid;
+  gap: var(--sp-4);
+}
+
+.modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  border-bottom: 2px solid var(--line);
+  padding-bottom: var(--sp-3);
+}
+
+.modal__foot {
+  display: flex;
+  gap: var(--sp-3);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  border-top: 2px solid var(--line);
+  padding-top: var(--sp-4);
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-size: var(--step--1);
+  color: var(--text-dim);
+}
+
+.check input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+}
+
+/* --- loader -------------------------------------------------------------- */
+.loader {
+  display: grid;
+  place-items: center;
+  padding: var(--sp-8);
+  color: var(--text-dim);
+  font-family: var(--font-comic);
+  letter-spacing: 0.14em;
+  font-size: var(--step-1);
+}
+
+.loader span {
+  animation: loader-blink 1.2s var(--ease-in-out) infinite;
+}
+.loader span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.loader span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes loader-blink {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
