@@ -26,7 +26,12 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* `overflow-x: hidden` computes overflow-y to auto, which makes the body a
+     scroll container and breaks position:sticky for its descendants. `clip`
+     does the same visual job without creating one. The hidden line above it is
+     the fallback for browsers that do not support clip. */
   overflow-x: hidden;
+  overflow-x: clip;
   transition: background var(--dur) var(--ease-out), color var(--dur) var(--ease-out);
 }
 

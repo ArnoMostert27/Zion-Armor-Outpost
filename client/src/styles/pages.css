@@ -150,7 +150,9 @@
   position: relative;
   background: var(--bg-raised);
   border-block: 3px solid var(--text);
-  overflow: hidden;
+  /* No overflow here. `overflow: hidden` on an ancestor makes it the scrolling
+     container for position:sticky descendants, which silently stops
+     .comic__sticky from pinning. Clipping happens on .comic__sticky instead. */
 }
 
 .comic__sticky {
@@ -168,6 +170,9 @@
   height: min(78vh, 720px);
 }
 
+/* Panels are visible by default. GSAP hides them on mount and scrubs them back
+   in on scroll. If the animation never runs - no JS, a script error, reduced
+   motion - the reader still sees the comic instead of an empty screen. */
 .comic-panel {
   position: absolute;
   background: var(--bg-panel);
@@ -178,7 +183,6 @@
   align-content: center;
   gap: var(--sp-3);
   padding: var(--sp-5);
-  opacity: 0;
 }
 
 .comic-panel__kicker {
@@ -230,15 +234,16 @@
   position: absolute;
   z-index: 6;
   pointer-events: none;
-  opacity: 0;
 }
 
 .comic__burst--1 { left: 36%; top: 30%; }
 .comic__burst--2 { right: 12%; top: 56%; }
 .comic__burst--3 { left: 44%; bottom: 12%; }
 
+/* Scroll distance the pinned stage plays out over. Too long and the section
+   feels like dead scrolling; this is roughly half a viewport per panel. */
 .comic__scroller {
-  height: 420vh;
+  height: 300vh;
 }
 
 .comic__progress {

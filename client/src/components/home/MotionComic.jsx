@@ -59,19 +59,22 @@ export default function MotionComic() {
     const bursts = root.querySelectorAll('.comic__burst');
     const bar = root.querySelector('.comic__progress');
 
-    if (reduced) {
-      gsap.set(panels, { opacity: 1, x: 0, y: 0, rotate: 0 });
-      gsap.set(bursts, { opacity: 1 });
-      return;
-    }
+    // Reduced motion keeps the CSS default: everything visible, nothing moves.
+    if (reduced) return;
 
     const ctx = gsap.context(() => {
+      // Hide from JS rather than CSS, so a failure here leaves the panels
+      // visible instead of leaving the section blank.
+      gsap.set(panels, { opacity: 0 });
+      gsap.set(bursts, { opacity: 0 });
+
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: root,
           start: 'top top',
           end: 'bottom bottom',
           scrub: 0.6,
+          invalidateOnRefresh: true,
           onUpdate: (self) => {
             if (bar) bar.style.width = `${self.progress * 100}%`;
           },
@@ -108,7 +111,20 @@ export default function MotionComic() {
       });
     }, root);
 
-    return () => ctx.revert();
+    // The hero's fonts, the 3D canvas and the preloader all settle after this
+    // effect runs, and each one shifts where this section actually starts.
+    // Without a refresh, ScrollTrigger keeps its stale measurements and the
+    // panels animate against the wrong scroll positions.
+    const refresh = () => ScrollTrigger.refresh();
+    const timers = [setTimeout(refresh, 400), setTimeout(refresh, 2200)];
+    window.addEventListener('load', refresh);
+    if (document.fonts?.ready) document.fonts.ready.then(refresh).catch(() => {});
+
+    return () => {
+      timers.forEach(clearTimeout);
+      window.removeEventListener('load', refresh);
+      ctx.revert();
+    };
   }, []);
 
   return (
